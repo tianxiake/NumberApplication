@@ -1,11 +1,11 @@
 package com.snailyy.numberapplication.net;
 
-import com.snailyy.numberapplication.QueryResponseEntity;
 import com.snailyy.numberapplication.entity.BuyRequest;
 import com.snailyy.numberapplication.entity.BuyResponse;
 import com.snailyy.numberapplication.entity.CommonResponse;
 import com.snailyy.numberapplication.entity.MarketWaveUpdate;
 import com.snailyy.numberapplication.entity.PriceResponse;
+import com.snailyy.numberapplication.entity.QueryResponseEntity;
 import com.snailyy.numberapplication.entity.SellRequest;
 import com.snailyy.numberapplication.entity.SellResponse;
 import com.snailyy.numberapplication.entity.SwitchRequest;

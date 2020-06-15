@@ -32,6 +32,8 @@ import com.snailyy.numberapplication.utils.HiLogger;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -71,7 +73,6 @@ public class MarketFragment extends BaseFragment {
 
     BalanceAdapter balanceAdapter;
     ServiceStateAdapter serviceStateAdapter;
-    ServiceStateAdapter marketStateAdapter;
 
     TitleOneAdapter marketAdapter;
     TitleOneAdapter weekWaveAdapter;
@@ -319,10 +320,10 @@ public class MarketFragment extends BaseFragment {
         boolean accountServiceIsSurvivel = queryResponseEntity.isAccountServiceIsSurvivel();
         boolean orderServiceIsSurvivel = queryResponseEntity.isOrderServiceIsSurvivel();
         boolean marketDepthServiceIsSurvivel = queryResponseEntity.isMarketDepthServiceIsSurvivel();
-        ServiceTitleEntity priceEntity = new ServiceTitleEntity("价格服务", priceServiceIsSurvivel ? "正常" : "异常", ServiceTitleEntity.TYPE_WARN, priceServiceIsSurvivel);
-        ServiceTitleEntity accountEntity = new ServiceTitleEntity("账户服务", accountServiceIsSurvivel ? "正常" : "异常", ServiceTitleEntity.TYPE_WARN, accountServiceIsSurvivel);
-        ServiceTitleEntity orderEntity = new ServiceTitleEntity("订单服务", orderServiceIsSurvivel ? "正常" : "异常", ServiceTitleEntity.TYPE_WARN, orderServiceIsSurvivel);
-        ServiceTitleEntity marketEntity = new ServiceTitleEntity("深度服务", marketDepthServiceIsSurvivel ? "正常" : "异常", ServiceTitleEntity.TYPE_WARN, marketDepthServiceIsSurvivel);
+        ServiceTitleEntity priceEntity = new ServiceTitleEntity("价格服务", priceServiceIsSurvivel ? "正常" : "异常", ServiceTitleEntity.TYPE_WARN, !priceServiceIsSurvivel);
+        ServiceTitleEntity accountEntity = new ServiceTitleEntity("账户服务", accountServiceIsSurvivel ? "正常" : "异常", ServiceTitleEntity.TYPE_WARN, !accountServiceIsSurvivel);
+        ServiceTitleEntity orderEntity = new ServiceTitleEntity("订单服务", orderServiceIsSurvivel ? "正常" : "异常", ServiceTitleEntity.TYPE_WARN, !orderServiceIsSurvivel);
+        ServiceTitleEntity marketEntity = new ServiceTitleEntity("深度服务", marketDepthServiceIsSurvivel ? "正常" : "异常", ServiceTitleEntity.TYPE_WARN, !marketDepthServiceIsSurvivel);
         titleList.add(timeEntity);
         titleList.add(priceEntity);
         titleList.add(accountEntity);
@@ -411,21 +412,23 @@ public class MarketFragment extends BaseFragment {
         marketEntity.add(new TitleEntity("卖单价", queryResponseEntity.getAskDepthLowPrice() + ""));
         marketEntity.add(new TitleEntity("买单价", queryResponseEntity.getBidDepthHighPrice() + ""));
         marketEntity.add(new TitleEntity("默认盈利比例", NumberUtils.getPercentStr(queryResponseEntity.getDefaultProfitPercent())));
-        marketEntity.add(new TitleEntity("每秒交易次数", NumberUtils.getPercentStr(queryResponseEntity.get)));
+        marketEntity.add(new TitleEntity("每秒交易次数", queryResponseEntity.getTradeTimeCount() + ""));
+        marketEntity.add(new TitleEntity("每秒交易预警次数", queryResponseEntity.getTradeBoomCount() + ""));
+        marketEntity.add(new TitleEntity("单日每秒交易预警短信通知次数", queryResponseEntity.getTradeDayMssCount() + ""));
         return marketEntity;
     }
 
-    private List<TitleEntity> buildStateEntity(QueryResponseEntity queryResponseEntity) {
-        List<TitleEntity> titleEntities = new ArrayList<>();
-        titleEntities.add(new TitleEntity("等待", queryResponseEntity.getWait()));
-        titleEntities.add(new TitleEntity("运行模式", queryResponseEntity.getRunMode()));
-//		titleEntities.add(new TitleEntity("市场预期", queryResponseEntity.getCurrentMarketExpects()));
-        titleEntities.add(new TitleEntity("运行时间", queryResponseEntity.getHealthTime() / (1000 * 60 * 60) + "时"));
-        return titleEntities;
-    }
-
     private List<TradeEntity> buildBuyListEntity(QueryResponseEntity queryResponseEntity) {
-        List<TradeEntity> tradesList = queryResponseEntity.getTradesList();
+        List<TradeEntity> tradesList = queryResponseEntity.getBuyList();
+        Collections.sort(tradesList, new Comparator<TradeEntity>() {
+            @Override
+            public int compare(TradeEntity o1, TradeEntity o2) {
+                if (o1.getTradeTime() >= o2.getTradeTime()) {
+                    return -1;
+                }
+                return 1;
+            }
+        });
         return tradesList;
     }
 
